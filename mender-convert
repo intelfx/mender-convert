@@ -606,11 +606,11 @@ do_mender_disk_image_to_artifact() {
       rm -rf ${output_dir}/mnt
 
       log "\tWriting Mender artifact to: ${mender_artifact}"
-      log "\tThis may take 10-20 minutes (using LZMA)..."
+      log "\t(without compression)..."
 
       #Create Mender artifact
       mender-artifact \
-        --compression lzma \
+        --compression none \
         write rootfs-image \
         --file ${mender_rootfs_image} \
         --output-path ${mender_artifact} \
