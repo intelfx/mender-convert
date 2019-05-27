@@ -172,6 +172,9 @@ install_files() {
     jq_inplace '.TenantToken = \"'${tenant_token}'\"' ${primary_dir}/${sysconfdir}/mender.conf
   fi
 
+  # Point to certificate
+  jq_inplace '.ServerCertificate = \"'/${sysconfdir}/server.crt'\"' ${primary_dir}/${sysconfdir}/mender.conf
+
   # Append RootfsPartA/B to mender.conf
   append_rootfs_configuration ${primary_dir}/${sysconfdir}/mender.conf
 
