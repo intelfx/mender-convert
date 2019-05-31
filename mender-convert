@@ -20,7 +20,7 @@ General commands:
         mender-disk-image-to-artifact           - creates Mender artifact file
                                                   from Mender image
 
-Options: [-r|--raw-disk-image | -m|--mender-disk-image | -s|--data-part-size-mb |
+Options: [-r|--raw-disk-image | -m|--mender-disk-image | -s|--data-part-size-mb | --compression |
           -d|--device-type | -p|--rootfs-partition-id | -n|--demo | -i|--demo-host-ip |
           -c|--server-cert | -u|--server-url | -t|--tenant-token |
           -g|--mender-client | -b|--bootloader-toolchain | -a|--artifact-name |
@@ -31,6 +31,7 @@ Options: [-r|--raw-disk-image | -m|--mender-disk-image | -s|--data-part-size-mb 
         mender-disk-image     - Mender disk image name where the script writes to
                                 should have "sdimg" suffix
         data-part-size-mb     - data partition size in MB; default value 128MB
+        compression           - artifact compression algorithm (none|gzip|lzma)
         device-type           - target device identification used to build
                                 Mender image
         rootfs-partition-id   - selects root filesystem (primary|secondary)
@@ -98,6 +99,7 @@ fi
 
 tool_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+compression_algo=
 mender_disk_image=
 raw_disk_image=
 device_type=
@@ -606,11 +608,11 @@ do_mender_disk_image_to_artifact() {
       rm -rf ${output_dir}/mnt
 
       log "\tWriting Mender artifact to: ${mender_artifact}"
-      log "\t(without compression)..."
+      log "\t(compression: ${compression_algo:-none})..."
 
       #Create Mender artifact
       mender-artifact \
-        --compression none \
+        --compression ${compression_algo:-none} \
         write rootfs-image \
         --file ${mender_rootfs_image} \
         --output-path ${mender_artifact} \
@@ -670,6 +672,10 @@ export -f logsetup
 
 while (( "$#" )); do
   case "$1" in
+    --compression)
+      compression_algo=$2
+      shift 2
+      ;;
     -p | --rootfs-partition-id)
       rootfs_partition_id=$2
       shift 2
