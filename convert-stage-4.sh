@@ -144,9 +144,16 @@ install_files() {
 
   sudo ln -sf /data/${dataconfdir} ${primary_dir}/${localstatedir}
 
-  # Call mender make install target
+  # Call mender make install target to a staging directory
+  # create a subdir to avoid mirroring mktemp permissions (0700) to device /
+  local temp_dir="$(mktemp -d)"
+  install -dm755 "$temp_dir/rootfs"
   ( cd $GOPATH/src/github.com/mendersoftware/mender && \
-  sudo make install prefix=$primary_dir )
+  sudo make install prefix="$temp_dir/rootfs" )
+
+  # Install to actual device root, not clobbering any existing files
+  sudo cp -avn "$temp_dir/rootfs" -T "$primary_dir"
+  rm -rf "$temp_dir"
 
   # If specified, replace Mender client binary
   if [ -n "${mender_client}" ]; then
